@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="com.hhland.WechatPlugin"
+        version="1.0.0">
+    <name>WechatPlugin</name>
+    <description>hhland Cordova Wechat Plugin</description>
+    <keywords>cordova,wechat,plugin</keywords>
+    <author>newhzh</author>
+
+    <js-module src="www/WechatPlugin.js" name="WechatPlugin">
+        <clobbers target="WechatPlugin" />
+    </js-module>
+
+</plugin>
