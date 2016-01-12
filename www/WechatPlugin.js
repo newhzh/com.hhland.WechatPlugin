@@ -9,9 +9,9 @@ WechatPlugin.prototype.myAlert=function(){
     alert('i from plugin,updated');
 };
 
-WechatPlugin.prototype.echo=function(onSuccess,onError,message){
+WechatPlugin.prototype.mycheck=function(onSuccess,onError,message){
     var params=[message];
-    exec(onSuccess,onError,'WechatPlugin','echo',[]);
+    exec(onSuccess,onError,'WechatPlugin','echo',params);
 };
 
 module.exports=new WechatPlugin();
