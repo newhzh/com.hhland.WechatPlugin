@@ -12,4 +12,12 @@
         <clobbers target="WechatPlugin" />
     </js-module>
 
+    <platform name="android">
+        <config-file target="config.xml" parent="/*">
+            <feature name="WechatPlugin">
+                <param name="android-package" value="com.hhland.WechatPlugin.WechatPlugin"/>
+            </feature>
+        </config-file>
+    </platform>
+
 </plugin>
