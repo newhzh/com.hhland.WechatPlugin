@@ -18,6 +18,8 @@
                 <param name="android-package" value="com.hhland.WechatPlugin.WechatPlugin"/>
             </feature>
         </config-file>
+
+        <source-file src="src/android/WechatPlugin.java" target-dir="src/com/hhland/WechatPlugin" />
     </platform>
 
 </plugin>
