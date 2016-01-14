@@ -22,8 +22,8 @@
             <preference name="WECHATAPPID" value="$WECHATAPPID"/>
         </config-file>
 
-        <source-file src="src/android/ShareWechatPlugin.java" target-dir="src/com/hhland/WechatPlugin" />
-        <source-file src="src/android/Util.java" target-dir="src/com/hhland/WechatPlugin" />
+        <source-file src="src/android/ShareWechatPlugin.java" target-dir="src/com/hhland/cordova" />
+        <source-file src="src/android/Util.java" target-dir="src/com/hhland/cordova" />
         <source-file src="src/android/libammsdk.jar" target-dir="libs" />
     </platform>
 
