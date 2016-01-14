@@ -1,4 +1,4 @@
-package com.hhland.cordova;
+package com.hhland.cordova.wx;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
