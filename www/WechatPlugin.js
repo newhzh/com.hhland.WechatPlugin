@@ -14,4 +14,8 @@ WechatPlugin.prototype.mycheck=function(onSuccess,onError,message){
     exec(onSuccess,onError,'WechatPlugin','echo',params);
 };
 
+WechatPlugin.prototype.share=function(onSuccess,onError,params){
+    exec(onSuccess,onError,'WechatPlugin','share',params);
+};
+
 module.exports=new WechatPlugin();

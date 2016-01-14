@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="com.hhland.WechatPlugin"
+        id="com.hhland.cordova"
         version="1.0.0">
     <name>WechatPlugin</name>
     <description>hhland Cordova Wechat Plugin</description>
     <keywords>cordova,wechat,plugin</keywords>
     <author>newhzh</author>
+
+    <preference name="WECHATAPPID" />
 
     <js-module src="www/WechatPlugin.js" name="WechatPlugin">
         <clobbers target="WechatPlugin" />
@@ -15,11 +17,14 @@
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="WechatPlugin">
-                <param name="android-package" value="com.hhland.WechatPlugin.WechatPlugin"/>
+                <param name="android-package" value="com.hhland.cordova.WechatPlugin"/>
             </feature>
+            <preference name="WECHATAPPID" value="$WECHATAPPID"/>
         </config-file>
 
-        <source-file src="src/android/WechatPlugin.java" target-dir="src/com/hhland/WechatPlugin" />
+        <source-file src="src/android/ShareWechatPlugin.java" target-dir="src/com/hhland/WechatPlugin" />
+        <source-file src="src/android/Util.java" target-dir="src/com/hhland/WechatPlugin" />
+        <source-file src="src/android/libammsdk.jar" target-dir="libs" />
     </platform>
 
 </plugin>
