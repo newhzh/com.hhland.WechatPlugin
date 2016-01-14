@@ -56,9 +56,11 @@ public class ShareWechatPlugin extends CordovaPlugin {
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 				callbackContext.error("2|"+e.getMessage());
+				return false;
 			} catch (IOException e) {
 				e.printStackTrace();
 				callbackContext.error("2|"+e.getMessage());
+				return false;
 			}
         }
         return false;
@@ -74,8 +76,8 @@ public class ShareWechatPlugin extends CordovaPlugin {
 	
 	protected String getAppId() {
         if (this.appId == null) {
-        	SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
-            this.appId = preference.getString(WXAPPID_PROPERTY_KEY, "");
+        	//SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
+            //this.appId = preference.getString(WXAPPID_PROPERTY_KEY, "");
         }
         return this.appId;
     }
