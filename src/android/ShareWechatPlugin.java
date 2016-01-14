@@ -22,25 +22,25 @@ import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
-//import com.tencent.mm.sdk.openapi.IWXAPI;
-//import com.tencent.mm.sdk.openapi.WXAPIFactory;
-//import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
-//import com.tencent.mm.sdk.modelmsg.WXAppExtendObject;
-//import com.tencent.mm.sdk.modelmsg.WXEmojiObject;
-//import com.tencent.mm.sdk.modelmsg.WXImageObject;
-//import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
-//import com.tencent.mm.sdk.modelmsg.WXMusicObject;
-//import com.tencent.mm.sdk.modelmsg.WXTextObject;
-//import com.tencent.mm.sdk.modelmsg.WXVideoObject;
-//import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
-//import com.tencent.mm.sdk.modelmsg.SendAuth;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.sdk.modelmsg.WXAppExtendObject;
+import com.tencent.mm.sdk.modelmsg.WXEmojiObject;
+import com.tencent.mm.sdk.modelmsg.WXImageObject;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.modelmsg.WXMusicObject;
+import com.tencent.mm.sdk.modelmsg.WXTextObject;
+import com.tencent.mm.sdk.modelmsg.WXVideoObject;
+import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
 
 public class ShareWechatPlugin extends CordovaPlugin {
 	
 	private static final String TAG = "com.hhland.cordova.sharewechatplugin";
 	private static final String WXAPPID_PROPERTY_KEY = "WECHATAPPID";
 	private static final int THUMB_SIZE = 150;
-//	protected IWXAPI api;
+	protected IWXAPI api;
 	protected String appId;
 
 	@Override
@@ -76,21 +76,21 @@ public class ShareWechatPlugin extends CordovaPlugin {
 	
 	protected String getAppId() {
         if (this.appId == null) {
-        	//SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
-            //this.appId = preference.getString(WXAPPID_PROPERTY_KEY, "");
+        	SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
+            this.appId = preference.getString(WXAPPID_PROPERTY_KEY, "");
         }
         return this.appId;
     }
 	
-//	private IWXAPI getWXAPI(){
-//		if(this.api==null){
-//			String appid=getAppId();
-//			this.api=WXAPIFactory.createWXAPI(webView.getContext(),appid,true);
-//			//将App注册到微信列表
-//			this.api.registerApp(appid);
-//		}
-//		return this.api;
-//	}
+	private IWXAPI getWXAPI(){
+		if(this.api==null){
+			String appid=getAppId();
+			this.api=WXAPIFactory.createWXAPI(webView.getContext(),appid,true);
+			//将App注册到微信列表
+			this.api.registerApp(appid);
+		}
+		return this.api;
+	}
 	
 	private String buildTransaction(final String type) {
 		return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
@@ -104,60 +104,60 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		//params[3] -- 描述
 		//params[4] -- 图片url
 		//返回值：0-成功；1-微信未安装；2-发送失败
-//		final IWXAPI api = getWXAPI();
-//		int targetScene=params.getInt(0);
-//		String webUrl=params.getString(1);
-//		String title=params.getString(2);
-//		String description=params.getString(3);
-//		String imgUrl=params.getString(4);
-//		
-//		if (!api.isWXAppInstalled()) {
-//            callbackContext.error("1");
-//            return;
-//        }
-//
-//		WXWebpageObject webpage = new WXWebpageObject();
-//		webpage.webpageUrl = webUrl;
-//		WXMediaMessage msg = new WXMediaMessage(webpage);
-//		msg.title = title;
-//		msg.description = description;
-//		
-//		Bitmap bmp = BitmapFactory.decodeStream(new URL(imgUrl).openStream());
-//		Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
-//		bmp.recycle();
-//		msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
-//		
-//		final SendMessageToWX.Req req = new SendMessageToWX.Req();
-//		req.transaction = buildTransaction("webpage");
-//		req.message = msg;
-//		switch(targetScene){
-//		case 0:
-//			req.scene = SendMessageToWX.Req.WXSceneSession;
-//			break;
-//		case 1:
-//			req.scene = SendMessageToWX.Req.WXSceneTimeline;
-//			break;
-//		case 2:
-//			req.scene = SendMessageToWX.Req.WXSceneFavorite;
-//			break;
-//		default:
-//			req.scene = SendMessageToWX.Req.WXSceneTimeline;
-//		}
-//		
-//		// run in background
-//        cordova.getThreadPool().execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (api.sendReq(req)) {
-//                    Log.i(TAG, "wechat message sent successfully.");
-//                    //send success
-//                    callbackContext.success("0");
-//                } else {
-//                    Log.i(TAG, "wechat message sent failed.");
-//                    // send error
-//                    callbackContext.error("2");
-//                }
-//            }
-//        });
+		final IWXAPI api = getWXAPI();
+		int targetScene=params.getInt(0);
+		String webUrl=params.getString(1);
+		String title=params.getString(2);
+		String description=params.getString(3);
+		String imgUrl=params.getString(4);
+		
+		if (!api.isWXAppInstalled()) {
+            callbackContext.error("1");
+            return;
+        }
+
+		WXWebpageObject webpage = new WXWebpageObject();
+		webpage.webpageUrl = webUrl;
+		WXMediaMessage msg = new WXMediaMessage(webpage);
+		msg.title = title;
+		msg.description = description;
+		
+		Bitmap bmp = BitmapFactory.decodeStream(new URL(imgUrl).openStream());
+		Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+		bmp.recycle();
+		msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+		
+		final SendMessageToWX.Req req = new SendMessageToWX.Req();
+		req.transaction = buildTransaction("webpage");
+		req.message = msg;
+		switch(targetScene){
+		case 0:
+			req.scene = SendMessageToWX.Req.WXSceneSession;
+			break;
+		case 1:
+			req.scene = SendMessageToWX.Req.WXSceneTimeline;
+			break;
+		case 2:
+			req.scene = SendMessageToWX.Req.WXSceneFavorite;
+			break;
+		default:
+			req.scene = SendMessageToWX.Req.WXSceneTimeline;
+		}
+		
+		// run in background
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (api.sendReq(req)) {
+                    Log.i(TAG, "wechat message sent successfully.");
+                    //send success
+                    callbackContext.success("0");
+                } else {
+                    Log.i(TAG, "wechat message sent failed.");
+                    // send error
+                    callbackContext.error("2");
+                }
+            }
+        });
 	}
 }
