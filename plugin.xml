@@ -17,7 +17,7 @@
     <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="WechatPlugin">
-                <param name="android-package" value="com.hhland.cordova.wx.WechatPlugin"/>
+                <param name="android-package" value="com.hhland.cordova.wx.ShareWechatPlugin"/>
             </feature>
             <preference name="WECHATAPPID" value="$WECHATAPPID"/>
         </config-file>
