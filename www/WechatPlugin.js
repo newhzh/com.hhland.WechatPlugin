@@ -22,4 +22,8 @@ WechatPlugin.prototype.getAppId=function(onSuccess,onError){
     exec(onSuccess,onError,'WechatPlugin','appid',[]);
 };
 
+WechatPlugin.prototype.checkWechatInstalled= function (onSuccess,onError) {
+    exec(onSuccess,onError,'WechatPlugin','haswx',[]);
+};
+
 module.exports=new WechatPlugin();

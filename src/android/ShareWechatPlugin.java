@@ -2,8 +2,12 @@ package com.hhland.cordova.wx;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,13 +17,21 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.URLUtil;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.util.Log;
+import android.webkit.URLUtil;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaArgs;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -37,11 +49,31 @@ import com.tencent.mm.sdk.modelmsg.SendAuth;
 
 public class ShareWechatPlugin extends CordovaPlugin {
 	
+	public static final String ERR_WECHAT_NOT_INSTALLED = "1";
+	public static final String ERR_INVALID_OPTIONS = "2";
+	public static final String ERR_UNSUPPORTED_MEDIA_TYPE = "3";
+	public static final String ERR_USER_CANCEL = "4";
+	public static final String ERR_AUTH_DENIED = "5";
+	public static final String ERR_SENT_FAILED = "6";
+	public static final String ERR_UNSUPPORT = "7";
+	public static final String ERR_COMM = "8";
+	public static final String ERR_UNKNOWN = "9";
+	public static final String SUCCESS = "0";
+	
 	private static final String TAG = "com.hhland.cordova.sharewechatplugin";
 	private static final String WXAPPID_PROPERTY_KEY = "WECHATAPPID";
 	private static final int THUMB_SIZE = 150;
-	protected IWXAPI api;
 	protected String appId;
+	
+	public static IWXAPI api;
+	public static CallbackContext currentCallbackContext;
+	
+	@Override
+	public void initialize(CordovaInterface cordova, CordovaWebView webView){
+		this.appId = preferences.getString(WXAPPID_PROPERTY_KEY, "");//it is work,skip this error info.
+		this.api=WXAPIFactory.createWXAPI(webView.getContext(),this.appId,true);
+		this.api.registerApp(this.appId);//将App注册到微信列表
+	}
 
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -60,9 +92,11 @@ public class ShareWechatPlugin extends CordovaPlugin {
 				e.printStackTrace();
 				callbackContext.error("2|"+e.getMessage());
 			}
-        }else if(action.equals("appid")){
-        	String appid=this.getAppId();
-        	callbackContext.success("got it:"+appid);
+        }else if(action.equals("appid")){       	
+        	callbackContext.success("got it:"+this.appId);
+        	return true;
+        }else if(action.equals("haswx")){
+        	this.isWechatInstalled(callbackContext);
         	return true;
         }
         return false;
@@ -76,27 +110,18 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		}
 	}
 	
-	protected String getAppId() {
-        if (this.appId == null) {
-        	//SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
-            this.appId = preferences.getString(WXAPPID_PROPERTY_KEY, "");
-        }
-        return this.appId;
-    }
-	
-	private IWXAPI getWXAPI(){
-		if(this.api==null){
-			String appid=getAppId();
-			this.api=WXAPIFactory.createWXAPI(webView.getContext(),appid,true);
-			//将App注册到微信列表
-			this.api.registerApp(appid);
-		}
-		return this.api;
-	}
-	
 	private String buildTransaction(final String type) {
 		return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
 	}
+	
+	 private void isWechatInstalled(CallbackContext callbackContext) {
+		 if (!api.isWXAppInstalled()) {
+			 callbackContext.error(ERR_WECHAT_NOT_INSTALLED);
+		 }else{
+			 callbackContext.success(SUCCESS);
+		 }
+		 currentCallbackContext = callbackContext;
+	 }
 	
 	private void share(JSONArray params,final CallbackContext callbackContext) throws JSONException, MalformedURLException, IOException {
 		//目前只支持 WXWebpageObject 分享
@@ -106,18 +131,22 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		//params[3] -- 描述
 		//params[4] -- 图片url
 		//返回值：0-成功；1-微信未安装；2-发送失败
-		final IWXAPI api = getWXAPI();
+		//final IWXAPI api = ShareWechatPlugin.api;
+		if (!api.isWXAppInstalled()) {
+            callbackContext.error(ERR_WECHAT_NOT_INSTALLED);
+            return;
+		}
+		if (params == null) {
+            callbackContext.error(ERR_INVALID_OPTIONS);
+            return;
+        }
+		
 		int targetScene=params.getInt(0);
 		String webUrl=params.getString(1);
 		String title=params.getString(2);
 		String description=params.getString(3);
 		String imgUrl=params.getString(4);
 		
-		if (!api.isWXAppInstalled()) {
-            callbackContext.error("1");
-            return;
-        }
-
 		WXWebpageObject webpage = new WXWebpageObject();
 		webpage.webpageUrl = webUrl;
 		WXMediaMessage msg = new WXMediaMessage(webpage);
@@ -147,19 +176,34 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		}
 		
 		// run in background
-        cordova.getThreadPool().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (api.sendReq(req)) {
-                    Log.i(TAG, "wechat message sent successfully.");
-                    //send success
-                    callbackContext.success("0");
-                } else {
-                    Log.i(TAG, "wechat message sent failed.");
-                    // send error
-                    callbackContext.error("2");
-                }
+//        cordova.getThreadPool().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (api.sendReq(req)) {
+//                    Log.i(TAG, "wechat message sent successfully.");
+//                    //send success
+//                    callbackContext.success(NO_RESULT);
+//                } else {
+//                    Log.i(TAG, "wechat message sent failed.");
+//                    // send error
+//                    callbackContext.error(ERR_SENT_FAILED);
+//                }
+//            }
+//        });
+		
+		try {
+            boolean success = api.sendReq(req);
+            if (!success) {
+                callbackContext.error(ERR_SENT_FAILED);
+                return;
+            }else{
+            	callbackContext.success(SUCCESS);
             }
-        });
+        } catch (Exception e) {
+            callbackContext.error(e.getMessage());
+            return;
+        }
+
+        currentCallbackContext = callbackContext;
 	}
 }
