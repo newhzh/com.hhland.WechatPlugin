@@ -62,7 +62,7 @@ public class ShareWechatPlugin extends CordovaPlugin {
 	
 	private static final String TAG = "com.hhland.cordova.sharewechatplugin";
 	private static final String WXAPPID_PROPERTY_KEY = "WECHATAPPID";
-	private static final int THUMB_SIZE = 150;
+	private static final int THUMB_SIZE = 100;
 	protected String appId;
 	
 	public static IWXAPI api;
@@ -153,10 +153,15 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		msg.title = title;
 		msg.description = description;
 		
-		Bitmap bmp = BitmapFactory.decodeStream(new URL(imgUrl).openStream());
-		Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
-		bmp.recycle();
-		msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+		try{
+			Bitmap bmp = BitmapFactory.decodeStream(new URL(imgUrl).openStream());
+			Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+			bmp.recycle();
+			msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+		}catch(Exception e){
+			callbackContext.error(e.getMessage());
+			return;
+		}
 		
 		final SendMessageToWX.Req req = new SendMessageToWX.Req();
 		req.transaction = buildTransaction("webpage");
