@@ -78,8 +78,8 @@ public class ShareWechatPlugin extends CordovaPlugin {
 	
 	protected String getAppId() {
         if (this.appId == null) {
-        	SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
-            this.appId = preference.getString(WXAPPID_PROPERTY_KEY, "");
+        	//SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(webView.getContext());
+            this.appId = preferences.getString(WXAPPID_PROPERTY_KEY, "");
         }
         return this.appId;
     }
