@@ -18,4 +18,8 @@ WechatPlugin.prototype.myshare=function(onSuccess,onError,params){
     exec(onSuccess,onError,'WechatPlugin','share',params);
 };
 
+WechatPlugin.prototype.getAppId=function(onSuccess,onError){
+    exec(onSuccess,onError,'WechatPlugin','appid',[]);
+};
+
 module.exports=new WechatPlugin();

@@ -55,13 +55,15 @@ public class ShareWechatPlugin extends CordovaPlugin {
 				return true;
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
-				callbackContext.error("2|"+e.getMessage());
-				return false;
+				callbackContext.error("2|"+e.getMessage());			
 			} catch (IOException e) {
 				e.printStackTrace();
 				callbackContext.error("2|"+e.getMessage());
-				return false;
 			}
+        }else if(action.equals("appid")){
+        	String appid=this.getAppId();
+        	callbackContext.success("got it:"+appid);
+        	return true;
         }
         return false;
     }
