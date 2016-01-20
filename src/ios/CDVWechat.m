@@ -26,7 +26,9 @@ NSString *SUCCESS = @"0";
 
 - (void)pluginInitialize{
     NSString *appId = [[self.commandDelegate settings] objectForKey:WXAPPID_PROPERTY_KEY];
-    [WXApi registerApp:appId];
+    BOOL success = [WXApi registerApp:appId];
+    NSLog(@"appid:%@",appId);
+    NSLog(@"reg result:%@",success?@"注册成功":@"注册失败");
 }
 
 - (void)haswx:(CDVInvokedUrlCommand *)cmd{
