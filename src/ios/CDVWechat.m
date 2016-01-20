@@ -51,6 +51,9 @@ NSString *SUCCESS = @"0";
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
         return;
     }
+    
+    self.currentCallBackId = cmd.callbackId;
+    
     //目前只支持 WXWebpageObject 分享
     //params[0] -- 分享的目标场景（0会话，1朋友圈，2微信收藏）
     //params[1] -- 分享内容的目标 url
@@ -91,6 +94,7 @@ NSString *SUCCESS = @"0";
     if (!sendSuccess) {
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        self.currentCallBackId = nil;
     }else{
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
