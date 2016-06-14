@@ -17,5 +17,7 @@
 
 - (void)share:(CDVInvokedUrlCommand *)cmd;
 - (void)haswx:(CDVInvokedUrlCommand *)cmd;
+- (void)authRequest:(CDVInvokedUrlCommand *)cmd;
+- (void)paymentRequest:(CDVInvokedUrlCommand *)cmd;
 
 @end

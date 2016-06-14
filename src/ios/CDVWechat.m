@@ -12,7 +12,7 @@
 
 static int const THUMB_SIZE=320;
 
-NSString *WXAPPID_PROPERTY_KEY = @"WECHATAPPID";
+NSString *WXAPPID_PROPERTY_KEY = @"wechatappid";
 NSString *ERR_WECHAT_NOT_INSTALLED = @"1";
 NSString *ERR_INVALID_OPTIONS = @"2";
 NSString *ERR_UNSUPPORTED_MEDIA_TYPE = @"3";
@@ -25,7 +25,7 @@ NSString *ERR_UNKNOWN = @"9";
 NSString *SUCCESS = @"0";
 
 - (void)pluginInitialize{
-    NSString *appId = [[self.commandDelegate settings] objectForKey:@"wechatappid"];
+    NSString *appId = [[self.commandDelegate settings] objectForKey:WXAPPID_PROPERTY_KEY];
     BOOL success = [WXApi registerApp:appId];
     NSLog(@"appid:%@",appId);
     NSLog(@"reg result:%@",success?@"注册成功":@"注册失败");
@@ -129,6 +129,85 @@ NSString *SUCCESS = @"0";
     return image;
 }
 
+//微信授权登录请求
+- (void)authRequest(CDVInvokedUrlCommand *)cmd{
+    CDVPluginResult *result=nil;
+    
+    //判断微信app是否已安装
+    if (![WXApi isWXAppInstalled]) {
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_WECHAT_NOT_INSTALLED];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        return;
+    }
+    
+    //判断参数是否合法
+    NSArray *params=cmd.arguments;
+    if (!params || [params count]<2) {
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_INVALID_OPTIONS];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        return;
+    }
+    
+    //参数：appid,scope,state
+    NSString *scope=[params objectAtIndex:0];
+    NSString *state=[params objectAtIndex:1];
+    SendAuthReq* req =[[SendAuthReq alloc] init];
+    req.scope=scope;
+    req.state=scope;
+    
+    BOOL sendSuccess = [WXApi sendReq req];
+    if (!sendSuccess) {
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        self.currentCallBackId = nil;
+    }else{
+        self.currentCallBackId = cmd.callbackId;
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+    }
+    
+}
+
+//微信支付请求
+- (void)paymentRequest(CDVInvokedUrlCommand *)cmd{
+    CDVPluginResult *result=nil;
+    
+    //判断微信app是否已安装
+    if (![WXApi isWXAppInstalled]) {
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_WECHAT_NOT_INSTALLED];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        return;
+    }
+    
+    //判断参数是否合法
+    NSArray *params=cmd.arguments;
+    if (!params || [params count]<5) {
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_INVALID_OPTIONS];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        return;
+    }
+    
+    //参数，传入时按顺序（partnerId，prepayId，timeStamp，nonceStr，sign）
+    PayReq *req = [[PayReq alloc] init];
+    req.partnerId = [params objectAtIndex:0];
+    req.prepayId = [params objectAtIndex:1];
+    req.timeStamp = [params objectAtIndex:2];
+    req.nonceStr = [params objectAtIndex:3];
+    req.package = @"Sign=WXPay";
+    req.sign = [params objectAtIndex:4];
+    
+    BOOL sendSuccess = [WXApi sendReq req];
+    if (!sendSuccess) {
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        self.currentCallBackId = nil;
+    }else{
+        self.currentCallBackId = cmd.callbackId;
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+    }
+}
+
 #pragma mark - WXApiDelegate
 - (void)onReq:(BaseReq *)req{
     //收到一个来自微信的请求，第三方应用程序处理完后调用sendResp向微信发送结果
@@ -140,31 +219,48 @@ NSString *SUCCESS = @"0";
         return;
     }
     
+    BOOL success=NO;
     CDVPluginResult *result=nil;
+    switch (resp.errCode) {
+        case WXSuccess:
+            success=YES;
+            
+            break;
+        case WXErrCodeUserCancel:
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_USER_CANCEL];
+            break;
+        case WXErrCodeSentFail:
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
+            break;
+        case WXErrCodeAuthDeny:
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_AUTH_DENIED];
+            break;
+        case WXErrCodeUnsupport:
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_UNSUPPORT];
+            break;
+        case WXErrCodeCommon:
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_COMM];
+            break;
+        default:
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_UNKNOWN];
+            break;
+    }
+    
+    
     if ([resp isKindOfClass:[SendMessageToWXResp class]]) {
-        switch (resp.errCode) {
-            case WXSuccess:
-                result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-                break;
-            case WXErrCodeUserCancel:
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_USER_CANCEL];
-                break;
-            case WXErrCodeSentFail:
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
-                break;
-            case WXErrCodeAuthDeny:
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_AUTH_DENIED];
-                break;
-            case WXErrCodeUnsupport:
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_UNSUPPORT];
-                break;
-            case WXErrCodeCommon:
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_COMM];
-                break;
-            default:
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_UNKNOWN];
-                break;
-        }
+        //分享回调
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    }else if([resp isKindOfClass:[SendAuthResp class]]){
+        //授权登录请求的回调
+        NSDictionary *response = nil;
+        SendAuthResp* authResp = (SendAuthResp*)resp;
+        response = @{
+                     @"code": authResp.code != nil ? authResp.code : @"",
+                     @"state": authResp.state != nil ? authResp.state : @"",
+                     @"lang": authResp.lang != nil ? authResp.lang : @"",
+                     @"country": authResp.country != nil ? authResp.country : @"",
+                     };
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
     }
     
     [self.commandDelegate sendPluginResult:result callbackId:self.currentCallBackId];

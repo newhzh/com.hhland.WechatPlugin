@@ -26,4 +26,12 @@ WechatPlugin.prototype.checkWechatInstalled= function (onSuccess,onError) {
     exec(onSuccess,onError,'WechatPlugin','haswx',[]);
 };
 
+WechatPlugin.prototype.sendAuth= function (onSuccess,onError,params) {
+    exec(onSuccess,onError,'WechatPlugin','authRequest',params);
+};
+
+WechatPlugin.prototype.sendPayment= function (onSuccess,onError,params) {
+    exec(onSuccess,onError,'WechatPlugin','paymentRequest',params);
+};
+
 module.exports=new WechatPlugin();
