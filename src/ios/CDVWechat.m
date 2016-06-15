@@ -130,7 +130,7 @@ NSString *SUCCESS = @"0";
 }
 
 //微信授权登录请求
-- (void)authRequest(CDVInvokedUrlCommand *)cmd{
+- (void)authRequest:(CDVInvokedUrlCommand *)cmd{
     CDVPluginResult *result=nil;
     
     //判断微信app是否已安装
@@ -169,7 +169,7 @@ NSString *SUCCESS = @"0";
 }
 
 //微信支付请求
-- (void)paymentRequest(CDVInvokedUrlCommand *)cmd{
+- (void)paymentRequest:(CDVInvokedUrlCommand *)cmd{
     CDVPluginResult *result=nil;
     
     //判断微信app是否已安装
