@@ -191,7 +191,7 @@ NSString *SUCCESS = @"0";
     PayReq *req = [[PayReq alloc] init];
     req.partnerId = [params objectAtIndex:0];
     req.prepayId = [params objectAtIndex:1];
-    req.timeStamp = [params objectAtIndex:2];
+    req.timeStamp = [[params objectAtIndex:2] integerValue];
     req.nonceStr = [params objectAtIndex:3];
     req.package = @"Sign=WXPay";
     req.sign = [params objectAtIndex:4];
