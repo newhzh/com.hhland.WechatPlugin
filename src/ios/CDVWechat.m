@@ -155,7 +155,7 @@ NSString *SUCCESS = @"0";
     req.scope=scope;
     req.state=scope;
     
-    BOOL sendSuccess = [WXApi sendReq req];
+    BOOL sendSuccess = [WXApi sendReq:req];
     if (!sendSuccess) {
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
@@ -196,7 +196,7 @@ NSString *SUCCESS = @"0";
     req.package = @"Sign=WXPay";
     req.sign = [params objectAtIndex:4];
     
-    BOOL sendSuccess = [WXApi sendReq req];
+    BOOL sendSuccess = [WXApi sendReq:req];
     if (!sendSuccess) {
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
