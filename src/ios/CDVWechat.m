@@ -153,7 +153,7 @@ NSString *SUCCESS = @"0";
     NSString *state=[params objectAtIndex:1];
     SendAuthReq* req =[[SendAuthReq alloc] init];
     req.scope=scope;
-    req.state=scope;
+    req.state=state;
     
     BOOL sendSuccess = [WXApi sendReq:req];
     if (!sendSuccess) {

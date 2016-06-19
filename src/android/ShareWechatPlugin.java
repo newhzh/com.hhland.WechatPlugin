@@ -45,6 +45,7 @@ import com.tencent.mm.sdk.modelmsg.WXMusicObject;
 import com.tencent.mm.sdk.modelmsg.WXTextObject;
 import com.tencent.mm.sdk.modelmsg.WXVideoObject;
 import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.sdk.modelpay.PayReq;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
 
 public class ShareWechatPlugin extends CordovaPlugin {
@@ -70,7 +71,7 @@ public class ShareWechatPlugin extends CordovaPlugin {
 	
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView){
-		this.appId = preferences.getString(WXAPPID_PROPERTY_KEY, "");//it is work,skip this error info.
+		this.appId = getAppId();
 		this.api=WXAPIFactory.createWXAPI(webView.getContext(),this.appId,true);
 		this.api.registerApp(this.appId);//将App注册到微信列表
 	}
@@ -98,6 +99,28 @@ public class ShareWechatPlugin extends CordovaPlugin {
         }else if(action.equals("haswx")){
         	this.isWechatInstalled(callbackContext);
         	return true;
+        }else if(action.equals("authRequest")){
+        	try {
+				this.auth(args, callbackContext);
+				return true;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				callbackContext.error("2|"+e.getMessage());			
+			} catch (IOException e) {
+				e.printStackTrace();
+				callbackContext.error("2|"+e.getMessage());
+			}
+        }else if(action.equals("paymentRequest")){
+        	try {
+				this.pay(args, callbackContext);
+				return true;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				callbackContext.error("2|"+e.getMessage());			
+			} catch (IOException e) {
+				e.printStackTrace();
+				callbackContext.error("2|"+e.getMessage());
+			}
         }
         return false;
     }
@@ -211,4 +234,88 @@ public class ShareWechatPlugin extends CordovaPlugin {
 
         currentCallbackContext = callbackContext;
 	}
+	
+	private void auth(JSONArray params,final CallbackContext callbackContext) throws JSONException, MalformedURLException, IOException {
+		//微信登录授权
+		//params[0] -- scope
+		//params[1] -- state		
+		//返回值：0-成功；1-微信未安装；2-发送失败
+		//final IWXAPI api = ShareWechatPlugin.api;
+		if (!api.isWXAppInstalled()) {
+            callbackContext.error(ERR_WECHAT_NOT_INSTALLED);
+            return;
+		}
+		if (params == null) {
+            callbackContext.error(ERR_INVALID_OPTIONS);
+            return;
+        }
+		
+		String scope=params.getString(0);
+		String state=params.getString(1);
+		
+		final SendAuth.Req req = new SendAuth.Req();
+		req.scope = scope;
+		req.state = state;
+		
+		try {
+            boolean success = api.sendReq(req);
+            if (!success) {
+                callbackContext.error(ERR_SENT_FAILED);
+                return;
+            }else{
+            	callbackContext.success(SUCCESS);
+            }
+        } catch (Exception e) {
+            callbackContext.error(e.getMessage());
+            return;
+        }
+
+        currentCallbackContext = callbackContext;
+	}
+	
+	private void pay(JSONArray params,final CallbackContext callbackContext) throws JSONException, MalformedURLException, IOException {
+		//微信支付
+		//返回值：0-成功；1-微信未安装；2-发送失败
+		//参数，传入时按顺序（partnerId，prepayId，timeStamp，nonceStr，sign）
+		
+		if (!api.isWXAppInstalled()) {
+            callbackContext.error(ERR_WECHAT_NOT_INSTALLED);
+            return;
+		}
+		if (params == null) {
+            callbackContext.error(ERR_INVALID_OPTIONS);
+            return;
+        }
+		
+		final PayReq req = new PayReq();
+		req.appId = getAppId();
+		req.partnerId = params.getString(0);
+		req.prepayId= params.getString(1);
+		req.timeStamp= params.getString(2);
+		req.nonceStr= params.getString(3);
+		req.sign= params.getString(4);
+		req.packageValue = "Sign=WXPay";
+		
+		try {
+            boolean success = api.sendReq(req);
+            if (!success) {
+                callbackContext.error(ERR_SENT_FAILED);
+                return;
+            }else{
+            	callbackContext.success(SUCCESS);
+            }
+        } catch (Exception e) {
+            callbackContext.error(e.getMessage());
+            return;
+        }
+
+        currentCallbackContext = callbackContext;
+	}
+	
+	protected String getAppId() {
+        if (this.appId == null) {
+            this.appId = preferences.getString(WXAPPID_PROPERTY_KEY, "");//it is work,skip this error info.
+        }
+        return this.appId;
+    }
 }
