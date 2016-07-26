@@ -13,7 +13,7 @@
 @interface CDVWechat : CDVPlugin <WXApiDelegate>
 
 @property (nonatomic,strong) NSString *currentCallBackId;
-//@property (nonatomic,strong) NSString *appId;
+@property (nonatomic,strong) NSString *appId;
 
 - (void)share:(CDVInvokedUrlCommand *)cmd;
 - (void)haswx:(CDVInvokedUrlCommand *)cmd;
