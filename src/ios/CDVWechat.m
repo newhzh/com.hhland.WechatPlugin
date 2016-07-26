@@ -134,12 +134,15 @@ NSString *SUCCESS = @"0";
     CDVPluginResult *result=nil;
     self.currentCallBackId = cmd.callbackId;
     
+    NSLog(@"plugin － 开始");
+    
     //判断微信app是否已安装
     if (![WXApi isWXAppInstalled]) {
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_WECHAT_NOT_INSTALLED];
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
         return;
     }
+    NSLog(@"plugin － 微信客户端已安装");
     
     //判断参数是否合法
     NSArray *params=cmd.arguments;
@@ -148,6 +151,7 @@ NSString *SUCCESS = @"0";
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
         return;
     }
+    NSLog(@"plugin － 参数正确");
     
     //参数：appid,scope,state
     NSString *scope=[params objectAtIndex:0];
@@ -157,14 +161,19 @@ NSString *SUCCESS = @"0";
     req.state=state;
     
     BOOL sendSuccess = [WXApi sendReq:req];
-    if (!sendSuccess) {
-        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
-        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
-        self.currentCallBackId = nil;
+    if(sendSuccess){
+        NSLog(@"plugin － 授权请求发送成功");
     }else{
-        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
-        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        NSLog(@"plugin － 授权请求发送失败");
     }
+//    if (!sendSuccess) {
+//        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
+//        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+//        self.currentCallBackId = nil;
+//    }else{
+//        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
+//        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+//    }
     
 }
 
