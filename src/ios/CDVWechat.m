@@ -132,7 +132,6 @@ NSString *SUCCESS = @"0";
 //微信授权登录请求
 - (void)authRequest:(CDVInvokedUrlCommand *)cmd{
     CDVPluginResult *result=nil;
-    self.currentCallBackId = cmd.callbackId;
     
     NSLog(@"plugin － 开始");
     
@@ -162,6 +161,7 @@ NSString *SUCCESS = @"0";
     
     BOOL sendSuccess = [WXApi sendReq:req];
     if(sendSuccess){
+        self.currentCallBackId = cmd.callbackId;
         NSLog(@"plugin － 授权请求发送成功");
     }else{
         NSLog(@"plugin － 授权请求发送失败");
@@ -278,6 +278,14 @@ NSString *SUCCESS = @"0";
     
     [self.commandDelegate sendPluginResult:result callbackId:self.currentCallBackId];
     self.currentCallBackId=nil;
+}
+
+-(void)handleOpenURL:(NSNotification *)notification{
+    NSURL* url = [notification object];
+    if ([url isKindOfClass:[NSURL class]] && [url.scheme isEqualToString:self.appId])
+    {
+        [WXApi handleOpenURL:url delegate:self];
+    }
 }
 
 @end
