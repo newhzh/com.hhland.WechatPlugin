@@ -161,6 +161,7 @@ NSString *SUCCESS = @"0";
     req.state=state;
     
     BOOL sendSuccess = [WXApi sendReq:req];
+    self.currentCallBackId = nil;
     if(sendSuccess){
         NSLog(@"plugin － 授权请求发送成功");
     }else{
@@ -224,6 +225,8 @@ NSString *SUCCESS = @"0";
 
 - (void)onResp:(BaseResp *)resp{
     //发送一个sendReq后，收到微信的回应
+    NSLog(@"plugin － 得到反馈");
+    
     if(!self.currentCallBackId){
         return;
     }
@@ -261,6 +264,7 @@ NSString *SUCCESS = @"0";
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     }else if([resp isKindOfClass:[SendAuthResp class]]){
         //授权登录请求的回调
+        NSLog(@"plugin － 得到授权回调");
         NSDictionary *response = nil;
         SendAuthResp* authResp = (SendAuthResp*)resp;
         response = @{
