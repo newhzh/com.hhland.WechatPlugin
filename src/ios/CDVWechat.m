@@ -161,7 +161,6 @@ NSString *SUCCESS = @"0";
     req.state=state;
     
     BOOL sendSuccess = [WXApi sendReq:req];
-    self.currentCallBackId = nil;
     if(sendSuccess){
         NSLog(@"plugin － 授权请求发送成功");
     }else{
@@ -236,7 +235,6 @@ NSString *SUCCESS = @"0";
     switch (resp.errCode) {
         case WXSuccess:
             success=YES;
-            
             break;
         case WXErrCodeUserCancel:
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_USER_CANCEL];
@@ -258,22 +256,24 @@ NSString *SUCCESS = @"0";
             break;
     }
     
-    
-    if ([resp isKindOfClass:[SendMessageToWXResp class]]) {
-        //分享回调
-        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    }else if([resp isKindOfClass:[SendAuthResp class]]){
-        //授权登录请求的回调
-        NSLog(@"plugin － 得到授权回调");
-        NSDictionary *response = nil;
-        SendAuthResp* authResp = (SendAuthResp*)resp;
-        response = @{
-                     @"code": authResp.code != nil ? authResp.code : @"",
-                     @"state": authResp.state != nil ? authResp.state : @"",
-                     @"lang": authResp.lang != nil ? authResp.lang : @"",
-                     @"country": authResp.country != nil ? authResp.country : @"",
-                     };
-        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
+    if(success){
+        if ([resp isKindOfClass:[SendMessageToWXResp class]]) {
+            //分享回调
+            NSLog(@"plugin － 分享回调");
+            result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
+        }else if([resp isKindOfClass:[SendAuthResp class]]){
+            //授权登录请求的回调
+            NSLog(@"plugin － 授权回调");
+            NSDictionary *response = nil;
+            SendAuthResp* authResp = (SendAuthResp*)resp;
+            response = @{
+                         @"code": authResp.code != nil ? authResp.code : @"",
+                         @"state": authResp.state != nil ? authResp.state : @"",
+                         @"lang": authResp.lang != nil ? authResp.lang : @"",
+                         @"country": authResp.country != nil ? authResp.country : @"",
+                         };
+            result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
+        }
     }
     
     [self.commandDelegate sendPluginResult:result callbackId:self.currentCallBackId];
