@@ -25,9 +25,9 @@ NSString *ERR_UNKNOWN = @"9";
 NSString *SUCCESS = @"0";
 
 - (void)pluginInitialize{
-    NSString *appId = [[self.commandDelegate settings] objectForKey:WXAPPID_PROPERTY_KEY];
-    BOOL success = [WXApi registerApp:appId];
-    NSLog(@"appid:%@",appId);
+    self.appId = [[self.commandDelegate settings] objectForKey:WXAPPID_PROPERTY_KEY];
+    BOOL success = [WXApi registerApp:self.appId];
+    NSLog(@"appid:%@",self.appId);
     NSLog(@"reg result:%@",success?@"注册成功":@"注册失败");
 }
 
@@ -132,6 +132,7 @@ NSString *SUCCESS = @"0";
 //微信授权登录请求
 - (void)authRequest:(CDVInvokedUrlCommand *)cmd{
     CDVPluginResult *result=nil;
+    self.currentCallBackId = cmd.callbackId;
     
     //判断微信app是否已安装
     if (![WXApi isWXAppInstalled]) {
@@ -161,7 +162,6 @@ NSString *SUCCESS = @"0";
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
         self.currentCallBackId = nil;
     }else{
-        self.currentCallBackId = cmd.callbackId;
         result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
     }
@@ -191,7 +191,7 @@ NSString *SUCCESS = @"0";
     PayReq *req = [[PayReq alloc] init];
     req.partnerId = [params objectAtIndex:0];
     req.prepayId = [params objectAtIndex:1];
-    req.timeStamp = [[params objectAtIndex:2] integerValue];
+    req.timeStamp = [[params objectAtIndex:2] intValue];
     req.nonceStr = [params objectAtIndex:3];
     req.package = @"Sign=WXPay";
     req.sign = [params objectAtIndex:4];
