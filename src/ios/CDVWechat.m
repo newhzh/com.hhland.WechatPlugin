@@ -133,7 +133,7 @@ NSString *SUCCESS = @"0";
 - (void)authRequest:(CDVInvokedUrlCommand *)cmd{
     CDVPluginResult *result=nil;
     
-    NSLog(@"plugin － 开始");
+//    NSLog(@"plugin － 开始");
     
     //判断微信app是否已安装
     if (![WXApi isWXAppInstalled]) {
@@ -141,7 +141,7 @@ NSString *SUCCESS = @"0";
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
         return;
     }
-    NSLog(@"plugin － 微信客户端已安装");
+//    NSLog(@"plugin － 微信客户端已安装");
     
     //判断参数是否合法
     NSArray *params=cmd.arguments;
@@ -150,7 +150,7 @@ NSString *SUCCESS = @"0";
         [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
         return;
     }
-    NSLog(@"plugin － 参数正确");
+//    NSLog(@"plugin － 参数正确");
     
     //参数：appid,scope,state
     NSString *scope=[params objectAtIndex:0];
@@ -224,8 +224,7 @@ NSString *SUCCESS = @"0";
 
 - (void)onResp:(BaseResp *)resp{
     //发送一个sendReq后，收到微信的回应
-    NSLog(@"plugin － 得到反馈");
-    
+//    NSLog(@"plugin － 得到反馈");
     if(!self.currentCallBackId){
         return;
     }
@@ -267,6 +266,7 @@ NSString *SUCCESS = @"0";
             NSDictionary *response = nil;
             SendAuthResp* authResp = (SendAuthResp*)resp;
             response = @{
+                         @"errCode": [NSString stringWithFormat:@"%d",authResp.errCode],
                          @"code": authResp.code != nil ? authResp.code : @"",
                          @"state": authResp.state != nil ? authResp.state : @"",
                          @"lang": authResp.lang != nil ? authResp.lang : @"",
