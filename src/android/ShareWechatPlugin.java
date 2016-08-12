@@ -250,8 +250,6 @@ public class ShareWechatPlugin extends CordovaPlugin {
             return;
         }
 		
-		currentCallbackContext = callbackContext;
-		
 		String scope=params.getString(0);
 		String state=params.getString(1);
 		
@@ -261,11 +259,15 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		
 		boolean success = api.sendReq(req);
 		if(success){
-			Log.i(TAG, "发送成功.");
+			//Log.i(TAG, "发送成功.");
+			System.out.println("授权请求发送成功");
 		}else{
-			Log.i(TAG, "发送失败.");
+			System.out.println("授权请求发送失败了");
 			callbackContext.error(ERR_SENT_FAILED);
 		}
+		
+		currentCallbackContext = callbackContext;
+		
 		
 //		try {
 //            boolean success = api.sendReq(req);
