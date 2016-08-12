@@ -250,6 +250,8 @@ public class ShareWechatPlugin extends CordovaPlugin {
             return;
         }
 		
+		currentCallbackContext = callbackContext;
+		
 		String scope=params.getString(0);
 		String state=params.getString(1);
 		
@@ -257,20 +259,21 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		req.scope = scope;
 		req.state = state;
 		
-		try {
-            boolean success = api.sendReq(req);
-            if (!success) {
-                callbackContext.error(ERR_SENT_FAILED);
-                return;
-            }else{
-            	callbackContext.success(SUCCESS);
-            }
-        } catch (Exception e) {
-            callbackContext.error(e.getMessage());
-            return;
-        }
-
-        currentCallbackContext = callbackContext;
+		api.sendReq(req);
+		
+//		try {
+//            boolean success = api.sendReq(req);
+//            if (!success) {
+//                //callbackContext.error(ERR_SENT_FAILED);
+//                //return;
+//            }else{
+//            	//callbackContext.success(SUCCESS);
+//            }
+//        } catch (Exception e) {
+//            //callbackContext.error(e.getMessage());
+//            return;
+//        }
+        
 	}
 	
 	private void pay(JSONArray params,final CallbackContext callbackContext) throws JSONException, MalformedURLException, IOException {
