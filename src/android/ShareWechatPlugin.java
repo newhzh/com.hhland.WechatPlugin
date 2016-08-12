@@ -259,7 +259,13 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		req.scope = scope;
 		req.state = state;
 		
-		api.sendReq(req);
+		boolean success = api.sendReq(req);
+		if(success){
+			Log.i(TAG, "发送成功.");
+		}else{
+			Log.i(TAG, "发送失败.");
+			callbackContext.error(ERR_SENT_FAILED);
+		}
 		
 //		try {
 //            boolean success = api.sendReq(req);
