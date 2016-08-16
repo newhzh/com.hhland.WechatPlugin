@@ -260,15 +260,14 @@ public class ShareWechatPlugin extends CordovaPlugin {
 		boolean success = api.sendReq(req);
 		if(success){
 			//Log.i(TAG, "发送成功.");
-			System.out.println("授权请求发送成功");
+//			System.out.println("授权请求发送成功");
+			sendNoResultPluginResult(callbackContext);
 		}else{
-			System.out.println("授权请求发送失败了");
+//			System.out.println("授权请求发送失败了");
 			callbackContext.error(ERR_SENT_FAILED);
 		}
 		
-		currentCallbackContext = callbackContext;
-		
-		
+//		currentCallbackContext = callbackContext;
 //		try {
 //            boolean success = api.sendReq(req);
 //            if (!success) {
@@ -283,6 +282,16 @@ public class ShareWechatPlugin extends CordovaPlugin {
 //        }
         
 	}
+	
+	private void sendNoResultPluginResult(CallbackContext callbackContext) {
+        // save current callback context
+        currentCallbackContext = callbackContext;
+
+        // send no result and keep callback
+        PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    }
 	
 	private void pay(JSONArray params,final CallbackContext callbackContext) throws JSONException, MalformedURLException, IOException {
 		//微信支付
