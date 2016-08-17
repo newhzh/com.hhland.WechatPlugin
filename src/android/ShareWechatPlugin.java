@@ -64,17 +64,29 @@ public class ShareWechatPlugin extends CordovaPlugin {
 	private static final String TAG = "com.hhland.cordova.sharewechatplugin";
 	private static final String WXAPPID_PROPERTY_KEY = "WECHATAPPID";
 	private static final int THUMB_SIZE = 100;
-	protected String appId;
 	
-	public static IWXAPI api;
-	public static CallbackContext currentCallbackContext;
+	protected String appId;
+	protected IWXAPI api;
+	protected CallbackContext currentCallbackContext;
+	
+	public static ShareWechatPlugin instance = null;
 	
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView){
+		
+		instance = this;
 		this.appId = getAppId();
 		this.api=WXAPIFactory.createWXAPI(webView.getContext(),this.appId,true);
 		this.api.registerApp(this.appId);//将App注册到微信列表
 	}
+	
+	public IWXAPI getWxAPI() {
+        return this.api;
+    }
+
+    public CallbackContext getCurrentCallbackContext() {
+        return currentCallbackContext;
+    }
 
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
