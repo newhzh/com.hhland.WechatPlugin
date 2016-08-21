@@ -32,6 +32,7 @@ NSString *SUCCESS = @"0";
 }
 
 - (void)haswx:(CDVInvokedUrlCommand *)cmd{
+    NSLog(@"haswx 执行到了！");
     CDVPluginResult *result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:[WXApi isWXAppInstalled]];
     [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
 }
