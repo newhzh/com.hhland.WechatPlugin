@@ -32,9 +32,16 @@ NSString *SUCCESS = @"0";
 }
 
 - (void)haswx:(CDVInvokedUrlCommand *)cmd{
-    NSLog(@"haswx 执行到了！");
-    CDVPluginResult *result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:[WXApi isWXAppInstalled]];
-    [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+    CDVPluginResult *result=nil;
+    if ([WXApi isWXAppInstalled]) {
+        //已安装微信客户端
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+    }else{
+        //未安装微信客户端
+        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_WECHAT_NOT_INSTALLED];
+        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+    }
 }
 
 - (void)share:(CDVInvokedUrlCommand *)cmd{
