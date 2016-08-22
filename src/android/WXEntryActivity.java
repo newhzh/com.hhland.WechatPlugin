@@ -1,4 +1,4 @@
-package com.hhland.cordova.wx;
+package com.hhland.whip.wxapi;
 
 import com.tencent.mm.sdk.constants.ConstantsAPI;
 import com.tencent.mm.sdk.modelbase.BaseReq;
