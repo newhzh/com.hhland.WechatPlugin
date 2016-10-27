@@ -214,15 +214,22 @@ NSString *SUCCESS = @"0";
     req.sign = [params objectAtIndex:4];
     
     BOOL sendSuccess = [WXApi sendReq:req];
-    if (!sendSuccess) {
-        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
-        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
-        self.currentCallBackId = nil;
-    }else{
+    if(sendSuccess){
         self.currentCallBackId = cmd.callbackId;
-        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
-        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        NSLog(@"微信支付请求发送成功");
+    }else{
+        NSLog(@"微信支付请求发送失败!");
     }
+    
+//    if (!sendSuccess) {
+//        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERR_SENT_FAILED];
+//        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+//        self.currentCallBackId = nil;
+//    }else{
+//        self.currentCallBackId = cmd.callbackId;
+//        result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
+//        [self.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+//    }
 }
 
 #pragma mark - WXApiDelegate
@@ -281,6 +288,8 @@ NSString *SUCCESS = @"0";
                          @"country": authResp.country != nil ? authResp.country : @"",
                          };
             result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
+        }else{
+            result=[CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:SUCCESS];
         }
     }
     
